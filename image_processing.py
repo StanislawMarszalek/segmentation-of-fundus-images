@@ -43,12 +43,12 @@ def read_img(pathfile:str)->cv2.UMat|cv2.Mat:
 
     return img
 
-def normalize01(image:np.ndarray)->np.ndarray:
+def normalize01(image:cv2.Mat)->cv2.Mat:
     return (image-image.min())/(image.max()-image.min())
 
 
 
-def preproces_pipeline(img,median_kernel_size=11)->cv2.Mat:
+def preproces_pipeline(img:cv2.Mat,median_kernel_size:int=11)->cv2.Mat:
 
     if img.ndim > 2:
         img = img[:, :, 1]   # green channel
@@ -58,12 +58,18 @@ def preproces_pipeline(img,median_kernel_size=11)->cv2.Mat:
     img = normalize01(img)
     return img
 
-def postproces_pipeline(img)->cv2.Mat:
+def postproces_pipeline(img:cv2.Mat,kernel_size:int=17)->cv2.Mat:
+    #type must be unisgned short
     img = img.astype(np.uint8)
-    kernel_fill = getStructuringElement(MORPH_ELLIPSE, (15, 15))
-    return morphologyEx(img, cv2.MORPH_CLOSE, kernel_fill)
+    #creating kernel
+    kernel_fill = getStructuringElement(MORPH_ELLIPSE, (kernel_size, kernel_size))
+    img=morphologyEx(img, cv2.MORPH_CLOSE, kernel_fill)
+    #normalizing results
+    img = normalize01(img)
+    return img
 
 if __name__=="__main__":
     img=read_img(".\images\\01_dr.JPG")
-    show_img(img)
+    show_img(img,"Before processing")
+    img=preproces_pipeline(img,11)
 
