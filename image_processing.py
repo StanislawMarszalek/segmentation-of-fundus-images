@@ -72,4 +72,6 @@ if __name__=="__main__":
     img=read_img(".\images\\01_dr.JPG")
     show_img(img,"Before processing")
     img=preproces_pipeline(img,11)
+    show_img(img,"After pre-procesing")
+    
 
