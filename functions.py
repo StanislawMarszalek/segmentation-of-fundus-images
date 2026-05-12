@@ -47,23 +47,15 @@ def normalize01(image:np.ndarray)->np.ndarray:
 
 
 
-def preproces_pipeline(img, clahe_clip=3.0, clahe_grid=(8, 8),clip=False
-                       ,median_kernel_size=5, mask=None)->cv2.Mat:
+def preproces_pipeline(img,median_kernel_size=7)->cv2.Mat:
 
     if img.ndim > 2:
         img = img[:, :, 1]   # green channel
 
-    if mask is not None:
-        if mask.ndim > 2:
-            mask = mask[:, :, 1]
-        img = img&mask
-
-    if clip:
-        img=np.clip(img,10,245)
 
     img = medianBlur(img, median_kernel_size)
-    clahe = createCLAHE(clahe_clip, clahe_grid)
-    img = clahe.apply(img)
+    #clahe = createCLAHE(clahe_clip, clahe_grid)
+    #img = clahe.apply(img)
 
     img = normalize01(img)
     return img
