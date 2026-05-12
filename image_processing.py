@@ -2,10 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 from cv2 import medianBlur,imread,cvtColor,getStructuringElement,MORPH_ELLIPSE,morphologyEx,MORPH_CLOSE
-from skimage.filters import frangi,sato,unsharp_mask
 
-### PIPELINE:READ->EXTRACT GREEN->Gausian bluring-> [TRANSFORM TO 0-1 SCALE]
-#ZROBIC FUNCKJE PIPELINE KOTRA BEDZIE PO KOLEJI WYKONYWAC
+
 def show_img(image:cv2.Mat,title:str|None=None)->None:
     """
     Display a given image in the gray scale
