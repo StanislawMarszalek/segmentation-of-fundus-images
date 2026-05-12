@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
-from cv2 import GaussianBlur,createCLAHE,medianBlur
+import cv2
+from cv2 import GaussianBlur,createCLAHE,medianBlur,bitwise_and,imread,cvtColor
 
 ### PIPELINE:READ->EXTRACT GREEN->Gausian bluring/CLACHE-> [TRANSFORM TO 0-1 SCALE]
 #ZROBIC FUNCKJE PIPELINE KOTRA BEDZIE PO KOLEJI WYKONYWAC
-def show_img(image:np.ndarray,title:str|None=None)->None:
+def show_img(image:cv2.Mat,title:str|None=None)->None:
     """
     Display a given image in the gray scale
     
@@ -21,7 +21,7 @@ def show_img(image:np.ndarray,title:str|None=None)->None:
     return
 
 
-def read_img(pathfile:str)->np.ndarray:
+def read_img(pathfile:str)->cv2.UMat|cv2.Mat:
     """
     Read and return an image
     
@@ -31,8 +31,11 @@ def read_img(pathfile:str)->np.ndarray:
     :rtype: UMat | None
     """
     try:
-        img=plt.imread(pathfile)
-        assert img is not None ,"Image cant be None"
+        img=imread(pathfile)
+        if img is None:
+            raise ValueError("Img not found")
+        #
+        img=cvtColor(img,cv2.COLOR_BGR2RGB)
     except (ValueError,FileNotFoundError,FileExistsError):
         print(f"Could not ope the file: {pathfile}")
         return None
@@ -44,24 +47,26 @@ def normalize01(image:np.ndarray)->np.ndarray:
 
 
 
-def preproces_pipeline(img:np.ndarray,clahe_clip:float=3.0,
-                        clahe_grid:tuple[int, int]=(8,8), gaussian_grid:tuple[int,int]=(5,5),
-                        gauss_x_std:float=0)->np.ndarray:
+def preproces_pipeline(img, clahe_clip=3.0, clahe_grid=(8, 8)
+                       ,median_kernel_size=5, mask=None):
 
+    if img.ndim > 2:
+        img = img[:, :, 1]   # green channel
 
-    #Extracting green channel
-    if len(img.shape)>1:
-        img=img[:,:,1]
-    
-    img=medianBlur(img,5)
-    img=GaussianBlur(img,gaussian_grid,gauss_x_std)
-    #Clahing
-    clahe=createCLAHE(clahe_clip,clahe_grid)
-    img=clahe.apply(img)
-    
-    
-    #Normalizing
-    img=normalize01(img)
+    if mask is not None:
+        if mask.ndim > 2:
+            mask = mask[:, :, 1]
+        img = np.where(mask > 0, img, 0)
+
+    # jeśli img jest float 0-1, zamień na uint8 przed OpenCV
+    if img.dtype != np.uint8:
+        img = (normalize01(img) * 255).astype(np.uint8)
+
+    img = medianBlur(img, median_kernel_size)
+    clahe = createCLAHE(clahe_clip, clahe_grid)
+    img = clahe.apply(img)
+
+    img = normalize01(img)
     return img
 
 
@@ -69,7 +74,7 @@ def preproces_pipeline(img:np.ndarray,clahe_clip:float=3.0,
 if __name__=="__main__":
     img=read_img(".\images\\01_dr.JPG")
     #EXTRAKCJA DO ZIELIONEGO
-    img=preproces_pipeline(img,2)
+    #img=preproces_pipeline(img,2)
     show_img(img)
     #plt.subplot(121),plt.imshow(img),plt.title('Original')
     #plt.xticks([]), plt.yticks([])
