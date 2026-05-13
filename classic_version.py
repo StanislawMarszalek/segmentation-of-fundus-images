@@ -21,7 +21,7 @@ def classic_vessel_segmentation(img:Mat,mask:Mat|None=None,median_kernel_size:in
     :param filling_kernel_size: Size of filling kernel to close vessels
     :type filling_kernel_size: int
     """
-    
+
     vessels=preproces_pipeline(img,median_kernel_size)
     vessels=sato(vessels,[1,2,3,4,5])
     vessels=where(vessels>threshold,1,0)
@@ -30,5 +30,6 @@ def classic_vessel_segmentation(img:Mat,mask:Mat|None=None,median_kernel_size:in
             mask=mask[:,:,1]
         vessels&=mask
     vessels=postproces_pipeline(vessels,filling_kernel_size)
-
+    #transform to binary
+    vessels=where(vessels>threshold,1,0)
     return vessels
