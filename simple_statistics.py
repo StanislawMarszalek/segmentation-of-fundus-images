@@ -4,13 +4,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def create_confusions_matrix(true_values:Mat ,predicted_values:Mat,
-                            true_value:str="White",flase_value:str="Black")->None:#tuple[tuple[int,int,int,int], ConfusionMatrixDisplay]:
+                            true_value:str="White",false_value:str="Black")->None:#tuple[tuple[int,int,int,int], ConfusionMatrixDisplay]:
+
+
+    """
+    Display confusions matrix and metrics
     
+    :param true_values: Image that is considered to be true image of vessels
+    :type img: Mat
+    :param predicted_values: Image with predicted vessels
+    :type mask: Mat
+    :param true_value: Label for true values
+    :type true_value: str
+    :param flase_value: Label for false values
+    :type threshold: str
+    """
+
     matrix=confusion_matrix(true_values.flatten(),predicted_values.flatten())
     tn:int; fp:int; fn:int; tp:int
     displayed_matrix=ConfusionMatrixDisplay(matrix).from_predictions(true_values.flatten(),
-                                                                    predicted_values.flatten(),display_labels=[flase_value,true_value])
-    
+                                                                    predicted_values.flatten(),display_labels=[false_value,true_value])
+
 
     tn, fp, fn, tp=matrix.ravel().tolist()
 
@@ -40,4 +54,3 @@ if __name__=="__main__":
     print(data.flatten())
     data2=np.array([[1,1,0],[0,0,0]])
     create_confusions_matrix(data,data2)
-
