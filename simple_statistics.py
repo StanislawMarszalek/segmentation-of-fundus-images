@@ -16,15 +16,21 @@ def create_confusions_matrix(true_values:Mat ,predicted_values:Mat,
 
     accuracy = (tp + tn) / (tp + tn + fp + fn)
     sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
-    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0 
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+    #Unbalanced metrics
+    balanced_acc = (sensitivity + specificity) / 2
+    g_mean = np.sqrt(sensitivity * specificity)
 
     metrics_text = (
         f"Accuracy: {accuracy:.4f}\n"
         f"Sensitivity (Czułość): {sensitivity:.4f}\n"
-        f"Specificity (Swoistość): {specificity:.4f}"
+        f"Specificity (Swoistość): {specificity:.4f}\n"
+        f"Balanced Acc: {balanced_acc:.4f}\n"
+        f"G-Mean: {g_mean:.4f}\n"
     )
-    plt.figtext(0.5, 0.01, metrics_text, ha="center", fontsize=12)
-    plt.tight_layout(rect=[0, 0.1, 1, 1])
+
+    plt.figtext(0.5, 0.01, metrics_text, ha="center", fontsize=10)
+    plt.tight_layout(rect=[0, 0.2, 1, 1])
     plt.show()
     return #(tn,fp,fn,tp)#,displayed_matrix
     
