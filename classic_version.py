@@ -6,6 +6,21 @@ from numpy import where
 
 def classic_vessel_segmentation(img:Mat,mask:Mat|None=None,median_kernel_size:int=11,
                     threshold:float=0.0175,filling_kernel_size:int=17):
+
+    """
+    Classic none machine/deep learning vessels segmentation algorithm
+    
+    :param img: Input image to do vessels segmentation
+    :type img: Mat
+    :param mask: Field of View mask, if not give it's not applied
+    :type mask: Mat | None
+    :param median_kernel_size: Size of median blur kernel
+    :type median_kernel_size: int
+    :param threshold: Threshold to decide if a point is white or black
+    :type threshold: float
+    :param filling_kernel_size: Size of filling kernel to close vessels
+    :type filling_kernel_size: int
+    """
     
     vessels=preproces_pipeline(img,median_kernel_size)
     vessels=sato(vessels,[1,2,3,4,5])
