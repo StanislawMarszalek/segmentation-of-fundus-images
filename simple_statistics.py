@@ -4,15 +4,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def create_confusions_matrix(true_values:Mat ,predicted_values:Mat,
-                            true_value:str="White",flase_value:str="Black")->tuple[tuple[int,int,int,int], ConfusionMatrixDisplay]:
+                            true_value:str="White",flase_value:str="Black")->None:#tuple[tuple[int,int,int,int], ConfusionMatrixDisplay]:
     
     matrix=confusion_matrix(true_values.flatten(),predicted_values.flatten())
     tn:int; fp:int; fn:int; tp:int
-    displayed_matrix=ConfusionMatrixDisplay(matrix).from_predictions(true_values.flatten(),predicted_values.flatten(),
-                                                                    display_labels=[flase_value,true_value])
+    displayed_matrix=ConfusionMatrixDisplay(matrix).from_predictions(true_values.flatten(),
+                                                                    predicted_values.flatten(),display_labels=[flase_value,true_value])
+    
 
     tn, fp, fn, tp=matrix.ravel().tolist()
-    return (tn,fp,fn,tp),displayed_matrix
+
+    accuracy = (tp + tn) / (tp + tn + fp + fn)
+    sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0 
+
+    metrics_text = (
+        f"Accuracy: {accuracy:.4f}\n"
+        f"Sensitivity (Czułość): {sensitivity:.4f}\n"
+        f"Specificity (Swoistość): {specificity:.4f}"
+    )
+    plt.figtext(0.5, 0.01, metrics_text, ha="center", fontsize=12)
+    plt.tight_layout(rect=[0, 0.1, 1, 1])
+    plt.show()
+    return #(tn,fp,fn,tp)#,displayed_matrix
     
 
 if __name__=="__main__":
@@ -20,3 +34,4 @@ if __name__=="__main__":
     print(data.flatten())
     data2=np.array([[1,1,0],[0,0,0]])
     create_confusions_matrix(data,data2)
+
