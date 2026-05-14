@@ -46,7 +46,7 @@ def read_img(pathfile:str)->UMat|Mat:
     return img
 
 def normalize01(image:Mat)->Mat:
-    return (image-image.min())/(image.max()-image.min())
+    return (image-image.min())/(image.max()-image.min()) if image.min()!=image.max() else 0
 
 
 
