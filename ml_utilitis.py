@@ -62,6 +62,13 @@ def extract_label(frame,kernel_size:int)->int:
 
 def remove_small_components(img_to_clean, min_size:int=60):
 
+    """
+    Remove small componnets from the image
+    
+    :param img_to_clean: Image to remove the noise from
+    :param min_size: Description
+    :type min_size: int
+    """
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(
         img_to_clean.astype(np.uint8),
         connectivity=8
