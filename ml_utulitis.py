@@ -60,5 +60,38 @@ def extract_label(frame,kernel_size:int)->int:
         return 0
 
 
-def save_model(model,pathfile:str,tag:str|None=None):
-    pass
+def save_model(model,pathfile:str,tag:str|None=None)->None:
+
+    if tag is None:
+        date=dt.datetime.today()
+        year=date.year
+        month=date.month
+        day=date.day
+        hour=date.hour
+        minutes=date.minute
+        tag=f"{year}_{month}_{day}_{hour}_{minutes}"
+
+    with open(f"{pathfile}_{tag}",mode="wb") as output_file:
+        pickle.dump(model, output_file)
+
+def load_model(pathfile:str):
+    """
+    Load model
+    
+    :param pathfile: Path to the model
+    :type pathfile: str
+    """
+    with open(pathfile,mode="rb") as input_file:
+        model=pickle.load(input_file)
+
+    return model
+
+if __name__=="__main__":
+    example={"123":"test",
+            123:"test"
+            }
+
+    save_model(example,"test","1_2_3_test")
+    pathfile="test_1_2_3_test"
+    model=load_model(pathfile)
+    print(model==example)
