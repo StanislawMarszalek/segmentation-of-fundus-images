@@ -6,12 +6,12 @@ import cv2
 from image_processing import normalize01
 
 
-#
-#  Module to:
-# - wrap functions from pickle to save and load machine_learning model
-# - provide functions to extract feauters and lables from images
-# -povide functions to clean and process images after classification
-#
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#  Module to:                                                           #
+# - wrap functions from pickle to save and load machine_learning model  #
+# - provide functions to extract feauters and lables from images        #
+# - povide functions to clean and process images after classification   #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 def extract_features(frame:cv2.Mat|cv2.UMat)->list:
     """
@@ -89,6 +89,21 @@ def remove_small_components(img_to_clean, min_size:int=60):
 def predict_full_image( img, mask, classifier,
     preprocess_function, kernel_size: int = 5, use_gpu:bool=False )->np.ndarray:
 
+    """
+    Apply preprocess function then make prediction
+    
+    :param img: Image to extract vessels from
+    :param mask: Field of view (FOV) mask
+    :param classifier: Model to do prediction (must provide `predict` function)
+    :param preprocess_function: Function to preprocess the image
+    :param kernel_size: Size of slicing kernel
+    :type kernel_size: int
+    :param use_gpu: Switch to decide if use GPU ( `classifier` must provide an accurate interface )
+    :type use_gpu: bool
+    :return: Processed image with found vessels
+    :rtype: ndarray
+    """
+
     half = kernel_size // 2
 
     # image preprocessing
@@ -143,7 +158,15 @@ def predict_full_image( img, mask, classifier,
     return pred_mask
 
 def save_model(model,pathfile:str,tag:str|None=None)->None:
-
+    """
+    Save model
+    
+    :param model: Data (model) to be saved
+    :param pathfile: Path to place where model will be stored (with added tag)
+    :type pathfile: str
+    :param tag: Tag to specify version of model (if not given data is used)
+    :type tag: str | None
+    """
     if tag is None:
         date=dt.datetime.today()
         year=date.year
