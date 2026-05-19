@@ -10,7 +10,7 @@ from image_processing import normalize01
 #  Module to:
 # - wrap functions from pickle to save and load machine_learning model
 # - provide functions to extract feauters and lables from images
-# -
+# -povide functions to clean and process images after classification
 #
 
 def extract_features(frame:cv2.Mat|cv2.UMat)->list:
@@ -40,18 +40,19 @@ def extract_features(frame:cv2.Mat|cv2.UMat)->list:
     hu_log = [-np.sign(h) * np.log10(abs(h) + 1e-12) for h in hu]
     features.extend(hu_log)
 
-    #gradienty najwyzej usunąc
-    #gx = cv2.Sobel(frame_copy, cv2.CV_64F, 1, 0, ksize=3)
-    #gy = cv2.Sobel(frame_copy, cv2.CV_64F, 0, 1, ksize=3)
-
-    #grad = np.sqrt(gx**2 + gy**2)
-
-    #features.append(np.mean(grad))
-    #features.append(np.var(grad))
 
     return features
 
 def extract_label(frame,kernel_size:int)->int:
+    """
+    Extract label from the frame center
+    
+    :param frame: Parto of image to extract label from
+    :param kernel_size: Description
+    :type kernel_size: Size of sliding window
+    :return: Description
+    :rtype: int
+    """
     #!!!numpy where must be applied to manual img before using ectract_lable function!!!
     if frame[kernel_size//2,kernel_size//2]==1:
         return 1
@@ -76,6 +77,7 @@ def remove_small_components(img_to_clean, min_size:int=60):
             cleaned[labels == i] = 1
 
     return cleaned
+
 
 def predict_full_image( img, mask, classifier,
     preprocess_function, kernel_size: int = 5 )->np.ndarray:
