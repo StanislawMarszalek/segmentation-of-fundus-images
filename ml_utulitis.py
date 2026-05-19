@@ -59,6 +59,76 @@ def extract_label(frame,kernel_size:int)->int:
     else:
         return 0
 
+def remove_small_components(img_to_clean, min_size:int=60):
+
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(
+        img_to_clean.astype(np.uint8),
+        connectivity=8
+    )
+
+    cleaned = np.zeros_like(img_to_clean)
+
+    for i in range(1, num_labels):
+
+        area = stats[i, cv2.CC_STAT_AREA]
+
+        if area >= min_size:
+            cleaned[labels == i] = 1
+
+    return cleaned
+
+def predict_full_image( img, mask, classifier,
+    preprocess_function, kernel_size: int = 5 )->np.ndarray:
+
+    half = kernel_size // 2
+
+    # image preprocessing
+    proc_img = preprocess_function(img)
+
+    if proc_img.ndim > 2:
+        proc_img = cv2.cvtColor(proc_img, cv2.COLOR_RGB2GRAY)
+
+    # converting mask (FOV) to 0 and 1 
+    if mask.ndim > 2:
+        mask = mask[:, :, 1]
+    mask = np.where(mask > 0, 1, 0).astype(np.uint8)
+
+    # image padding
+    padded_img = np.pad(proc_img, pad_width=half, mode='reflect')
+
+    height, width = proc_img.shape
+    pred_mask = np.zeros((height, width), dtype=np.uint8)
+
+    #variables for data
+    features_list = []
+    coords = []
+
+    for x in range(height):
+        for y in range(width):
+
+            # Only points inside the FOV mask are important
+            if mask[x, y] == 0:
+                continue
+
+            patch = padded_img[x:x + kernel_size, y:y + kernel_size]
+
+            if patch.shape[0] != kernel_size or patch.shape[1] != kernel_size:
+                continue
+
+            features = extract_features(patch)
+            features_list.append(features)
+            coords.append((x, y))
+
+    # one predictio  for whole data
+    features_array = np.asarray(features_list, dtype=np.float32)
+    predictions = classifier.predict(features_array)
+
+    # savinig prediction
+    for (x, y), pred in zip(coords, predictions):
+        pred_mask[x, y] = pred
+    pred_mask&=mask
+
+    return pred_mask
 
 def save_model(model,pathfile:str,tag:str|None=None)->None:
 
@@ -71,7 +141,7 @@ def save_model(model,pathfile:str,tag:str|None=None)->None:
         minutes=date.minute
         tag=f"{year}_{month}_{day}_{hour}_{minutes}"
 
-    with open(f"{pathfile}_{tag}",mode="wb") as output_file:
+    with open(f"{pathfile}_{tag}.pkl",mode="wb") as output_file:
         pickle.dump(model, output_file)
 
 def load_model(pathfile:str):
@@ -92,6 +162,6 @@ if __name__=="__main__":
             }
 
     save_model(example,"test","1_2_3_test")
-    pathfile="test_1_2_3_test"
+    pathfile="test_1_2_3_test.plk"
     model=load_model(pathfile)
     print(model==example)
