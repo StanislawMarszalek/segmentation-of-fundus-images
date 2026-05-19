@@ -87,7 +87,7 @@ def remove_small_components(img_to_clean, min_size:int=60):
 
 
 def predict_full_image( img, mask, classifier,
-    preprocess_function, kernel_size: int = 5 )->np.ndarray:
+    preprocess_function, kernel_size: int = 5, use_gpu:bool=False )->np.ndarray:
 
     half = kernel_size // 2
 
@@ -130,7 +130,10 @@ def predict_full_image( img, mask, classifier,
 
     # one predictio  for whole data
     features_array = np.asarray(features_list, dtype=np.float32)
-    predictions = classifier.predict(features_array)
+    if use_gpu:
+        predictions = classifier.predict(features_array,task_type="GPU")
+    else:
+        predictions = classifier.predict(features_array)
 
     # savinig prediction
     for (x, y), pred in zip(coords, predictions):
