@@ -6,7 +6,12 @@ from torch.nn.functional import relu
 import cv2
 from image_processing import read_img
 
+
 class UNet(nn.Module):
+    """
+    Implementation of UNet architecture
+    """
+
     def __init__(self, n_class):
         super().__init__()
 
@@ -98,15 +103,33 @@ class UNet(nn.Module):
 
         return out
     
-from math import ceil
-import cv2
-import numpy as np
 
 
-def load_training_patches(  image_paths, mask_paths,
+def load_training_patches(  image_paths:str, mask_paths:str,
                             size: int = 512,patch_size: int = 256,
-                            percent_of_images: float = 0.5,device: str = "cpu",
+                            percent_of_images: float = 0.5,
                             only_green: bool = True ):
+    
+    """
+    Create patches from given images
+    
+    :param image_paths: Path to data to train on
+    :type image_paths: str
+    :param mask_paths: Path to expert mask (ground truth)
+    :type mask_paths: str
+    :param size: Size of input images
+    :type size: int
+    :param patch_size: Size of a patch
+    :type patch_size: int
+    :param percent_of_images: Percentage amount of images to use in training
+    :type percent_of_images: float
+    :param only_green: DSwitch to decide if extract green channel
+    :type only_green: bool
+    """
+
+
+
+
     x_patches = []
     y_patches = []
 

@@ -46,7 +46,7 @@ def create_confusions_matrix(true_values:Mat ,predicted_values:Mat,
     plt.figtext(0.5, 0.01, metrics_text, ha="center", fontsize=10)
     plt.tight_layout(rect=[0, 0.2, 1, 1])
     plt.show()
-    return #(tn,fp,fn,tp)#,displayed_matrix
+    return
     
 
 if __name__=="__main__":
