@@ -12,7 +12,7 @@ The main goal is to detect and extract blood vessels from retinal photographs us
 
 The repository presents three approaches to vessel segmentation:
 
-- **Classical image processing** — traditional image filtering and segmentation methods (SATO filtr)
+- **Classical image processing** — traditional image filtering and segmentation methods (SATO filter)
 - **Machine Learning (ML)** — feature-based machine learning models (Random Forrest)
 - **Deep Learning (DL)** — neural network approaches, including U-Net architectures
 
