@@ -123,7 +123,7 @@ def load_training_patches(  image_paths, mask_paths,
 
         # extracting green channel
         if only_green:
-            img = img[:, :, 1] 
+            img = img[:, :, 1]
 
         mask = cv2.imread(str(mask_p), cv2.IMREAD_GRAYSCALE)
         mask = cv2.resize(mask, (size, size))
