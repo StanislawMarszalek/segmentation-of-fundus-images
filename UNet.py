@@ -11,7 +11,7 @@ class UNet(nn.Module):
         super().__init__()
 
         # input: 572x572x3
-        self.e11 = nn.Conv2d(3, 64, kernel_size=3, padding=1) # output: 570x570x64
+        self.e11 = nn.Conv2d(1, 64, kernel_size=3, padding=1) # output: 570x570x64
         self.e12 = nn.Conv2d(64, 64, kernel_size=3, padding=1) # output: 568x568x64
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2) # output: 284x284x64
 
@@ -102,33 +102,58 @@ class UNet(nn.Module):
 
         return out
     
-def load_training_patches(image_paths, mask_paths,size:int=512, patch_size:int=256,percent_of_images:float=0.5,device:str="cpu"):
+from math import ceil
+import cv2
+import numpy as np
+
+
+def load_training_patches(  image_paths, mask_paths,
+                            size: int = 512,patch_size: int = 256,
+                            percent_of_images: float = 0.5,device: str = "cpu",
+                            only_green: bool = True ):
     x_patches = []
     y_patches = []
-    max_id=ceil(len(image_paths)*percent_of_images)
-    for idx,(img_p, mask_p) in enumerate(zip(image_paths, mask_paths)):
+
+    max_id = ceil(len(image_paths) * percent_of_images)
+
+    for idx, (img_p, mask_p) in enumerate(zip(image_paths, mask_paths)):
+
         img = read_img(str(img_p))
-        img = cv2.resize(img, (size,size))
+        img = cv2.resize(img, (size, size))
+
+        # extracting green channel
+        if only_green:
+            img = img[:, :, 1] 
 
         mask = cv2.imread(str(mask_p), cv2.IMREAD_GRAYSCALE)
-        mask=cv2.resize(mask,(size,size))
+        mask = cv2.resize(mask, (size, size))
 
         h, w = img.shape[:2]
 
         for y in range(0, h - patch_size + 1, patch_size):
             for x in range(0, w - patch_size + 1, patch_size):
-                patch_img = img[y : y + patch_size, x : x + patch_size]
-                patch_mask = mask[y : y + patch_size, x : x + patch_size]
+
+                patch_img = img[y:y + patch_size, x:x + patch_size]
+                patch_mask = mask[y:y + patch_size, x:x + patch_size]
 
                 if np.max(patch_img) > 15:
+
                     patch_img = patch_img.astype(np.float32) / 255.0
-                    patch_img = np.transpose(patch_img, (2, 0, 1))
                     patch_mask = patch_mask.astype(np.float32) / 255.0
+
+
+                    patch_img = np.expand_dims(patch_img, axis=0)
+
+
                     patch_mask = np.expand_dims(patch_mask, axis=0)
 
                     x_patches.append(patch_img)
                     y_patches.append(patch_mask)
-        if idx>=max_id:
+
+        if idx >= max_id:
             break
 
-    return torch.tensor(np.array(x_patches),device=device), torch.tensor(np.array(y_patches),device=device)
+    x_patches = np.array(x_patches, dtype=np.float32)
+    y_patches = np.array(y_patches, dtype=np.float32)
+
+    return x_patches, y_patches
