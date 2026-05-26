@@ -169,7 +169,7 @@ def load_training_patches(  image_paths:str, mask_paths:str,
                     x_patches.append(patch_img)
                     y_patches.append(patch_mask)
 
-        if idx >= max_id:
+        if idx == max_id-1:
             break
 
     x_patches = np.array(x_patches, dtype=np.float32)
